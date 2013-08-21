@@ -55,7 +55,7 @@ module.provider('progressbar', function () {
         progressbarContainer.append(progressbar);
         $body.append(progressbarContainer);
 
-
+        var interval = null;
         return {
             // Starts the animation and adds between 0 - 5 percent to loading
             // each 400 milliseconds. Should always be finished with progressbar.complete()
@@ -63,15 +63,10 @@ module.provider('progressbar', function () {
             start: function () {
                 progressbar.css('width', count + '%');
                 progressbar.css('opacity', '1');
-                $window.interval = setInterval(function () {
-                    if (count + 1 >= 95) {
-                        clearInterval($window.interval);
-                    } else {
-                        var random = Math.floor(Math.random() * 5);
-                        count = count + random;
-                        progressbar.css('width', count + '%');
-                    }
-                }, 400);
+                interval = setInterval(function () {
+                    count = count + (0.7 * Math.pow(1-Math.sqrt(count/100), 2))*100;
+                    progressbar.css('width', count + '%');
+                }, 300);
             },
             // Sets the height of the progressbar. Use any valid CSS value
             // Eg '10px', '1em' or '1%'
@@ -90,12 +85,12 @@ module.provider('progressbar', function () {
             },
             // Stops the progressbar at it's current location
             stop: function () {
-                clearInterval($window.interval);
+                clearInterval(interval);
             },
             // Set's the progressbar percentage. Use a number between 0 - 100. 
             // If 100 is provided, complete will be called.
             set: function (new_count) {
-                clearInterval($window.interval);
+                clearInterval(interval);
                 if (new_count >= 100) {
                     this.complete();
                 }
@@ -107,7 +102,7 @@ module.provider('progressbar', function () {
             // Resets the progressbar to percetage 0 and therefore will be hided after
             // it's rollbacked
             reset: function () {
-                clearInterval($window.interval);
+                clearInterval(interval);
                 count = 0;
                 progressbar.css('width', count + '%');
                 progressbar.css('opacity', '1');
@@ -115,7 +110,7 @@ module.provider('progressbar', function () {
             },
             // Jumps to 100% progress and fades away progressbar.
             complete: function () {
-                clearInterval($window.interval);
+                clearInterval(interval);
                 count = 100;
                 progressbar.css('width', count + '%');
                 setTimeout(function () {
